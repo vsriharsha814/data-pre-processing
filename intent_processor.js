@@ -57,16 +57,28 @@ function processFilesInDirectory(directoryPath) {
       const filePath = path.join(directoryPath, file);
       const intentName = path.basename(file, '.csv');
       const intentsRemoved = processFile(filePath);
+      const allIntents = getAllIntents(filePath);
+      const intentsKept = allIntents.filter(intent => !intentsRemoved.includes(intent));
       intentResults.push({
         intentName,
         fileName: file,
-        intentsKept: [], // Implement logic for intents to be kept
+        intentsKept,
         intentsRemoved,
       });
     }
   });
 
   return intentResults;
+}
+
+// Function to get all intents from a file
+function getAllIntents(filePath) {
+  const file = reader.readFile(filePath);
+  const sheet = file.Sheets['Sheet1'];
+  const jsonSheet = reader.utils.sheet_to_json(sheet);
+
+  const columnNames = Object.keys(jsonSheet[0]).filter(column => column !== '__EMPTY');
+  return columnNames;
 }
 
 const directoryPath = './distance csv files'; // Update this with your directory path
